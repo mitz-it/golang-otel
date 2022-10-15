@@ -14,12 +14,21 @@ func createExporter(ctx context.Context, config *OpenTelemetryConfiguration) *ot
 	if config.exporterProtocol == HTTP {
 		url := getHTTPexporterURL(config)
 		client := otlptracehttp.NewClient(otlptracehttp.WithEndpoint(url))
-		exporter, _ := otlptrace.New(ctx, client)
+		exporter, err := otlptrace.New(ctx, client)
+		if err != nil {
+			panic(err)
+		}
 		return exporter
 	}
 	url := getGRPCexporterURL(config)
-	connection, _ := grpc.DialContext(ctx, url, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
-	exporter, _ := otlptracegrpc.New(ctx, otlptracegrpc.WithGRPCConn(connection))
+	connection, err := grpc.DialContext(ctx, url, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		panic(err)
+	}
+	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithGRPCConn(connection))
+	if err != nil {
+		panic(err)
+	}
 	return exporter
 }
 
