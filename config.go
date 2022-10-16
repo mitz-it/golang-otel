@@ -2,8 +2,11 @@ package golang_otel
 
 import (
 	"errors"
+	"time"
 
-	"github.com/google/uuid"
+	"go.opentelemetry.io/otel/propagation"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type ExporterProtocol int
@@ -13,14 +16,26 @@ const (
 	HTTP
 )
 
+type SpanProcessorType int
+
+const (
+	BATCH SpanProcessorType = iota
+	SIMPLE
+)
+
 type OpenTelemetryConfiguration struct {
 	serviceName            string
 	serviceNamespace       string
 	serviceVersion         string
 	serviceInstanceID      string
-	autoGenerateInstanceID bool
-	exporterProtocol       ExporterProtocol
 	collectorURL           string
+	autoGenerateInstanceID bool
+	insecure               bool
+	contextTimeout         time.Duration
+	grpcCredentials        credentials.TransportCredentials
+	exporterProtocol       ExporterProtocol
+	spanProcessorType      SpanProcessorType
+	propagator             *propagation.TextMapPropagator
 }
 
 type ConfigureTracing func(*OpenTelemetryConfiguration)
@@ -45,6 +60,26 @@ func (config *OpenTelemetryConfiguration) AutoGenerateInstanceID(autoGenerate bo
 	config.autoGenerateInstanceID = autoGenerate
 }
 
+func (config *OpenTelemetryConfiguration) UseInsecureCredentialsForHTTPExporter(insecure bool) {
+	config.insecure = insecure
+}
+
+func (config *OpenTelemetryConfiguration) WithContextTimeout(timeout time.Duration) {
+	config.contextTimeout = timeout
+}
+
+func (config *OpenTelemetryConfiguration) WithGrpcExporterCredentials(credentials credentials.TransportCredentials) {
+	config.grpcCredentials = credentials
+}
+
+func (config *OpenTelemetryConfiguration) WithSpanProcessorType(processorType SpanProcessorType) {
+	config.spanProcessorType = processorType
+}
+
+func (config *OpenTelemetryConfiguration) WithCustomTextMapPropagator(propagator *propagation.TextMapPropagator) {
+	config.propagator = propagator
+}
+
 func (config *OpenTelemetryConfiguration) ExportTracesTo(url string) {
 	config.collectorURL = url
 }
@@ -60,19 +95,16 @@ func (config *OpenTelemetryConfiguration) guardForEmptyServiceName() {
 	}
 }
 
-func generateInstanceID() string {
-	return uuid.NewString()
-}
-
-func DefaultOpenTelemetryConfiguration() *OpenTelemetryConfiguration {
+func NewOpenTelemetryConfiguraion() *OpenTelemetryConfiguration {
 	config := new(OpenTelemetryConfiguration)
 	config.exporterProtocol = GRPC
 	config.collectorURL = default_gRPC_URL()
 	config.serviceVersion = default_version
 	config.autoGenerateInstanceID = true
+	config.insecure = true
+	config.contextTimeout = 100
+	config.grpcCredentials = insecure.NewCredentials()
+	config.spanProcessorType = BATCH
+	config.propagator = nil
 	return config
-}
-
-func NewOtelConfiguration() *OpenTelemetryConfiguration {
-	return new(OpenTelemetryConfiguration)
 }
