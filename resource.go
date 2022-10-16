@@ -3,6 +3,7 @@ package golang_otel
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
@@ -53,4 +54,8 @@ func getServiceVersion(version string) string {
 		return default_version
 	}
 	return version
+}
+
+func generateInstanceID() string {
+	return uuid.NewString()
 }
