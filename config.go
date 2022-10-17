@@ -98,7 +98,6 @@ func (config *OpenTelemetryConfiguration) guardForEmptyServiceName() {
 func NewOpenTelemetryConfiguraion() *OpenTelemetryConfiguration {
 	config := new(OpenTelemetryConfiguration)
 	config.exporterProtocol = GRPC
-	config.collectorURL = default_gRPC_URL()
 	config.serviceVersion = default_version
 	config.autoGenerateInstanceID = true
 	config.insecure = true
