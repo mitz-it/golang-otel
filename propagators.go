@@ -1,4 +1,4 @@
-package golang_otel
+package otel
 
 import (
 	"go.opentelemetry.io/otel"

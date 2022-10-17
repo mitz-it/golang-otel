@@ -1,4 +1,4 @@
-package golang_otel
+package otel
 
 const default_version = "1.0.0"
 
