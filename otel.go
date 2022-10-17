@@ -1,18 +1,13 @@
-package golang_otel
+package otel
 
 import (
 	"context"
-	"os"
-	"os/signal"
-	"time"
 
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/propagation"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
 func ConfigureOpenTelemetryTracing(ctx context.Context, configure ConfigureTracing) (func(context.Context) error, error) {
-	config := NewOtelConfiguration()
+	config := NewOpenTelemetryConfiguraion()
 
 	configure(config)
 
@@ -20,26 +15,18 @@ func ConfigureOpenTelemetryTracing(ctx context.Context, configure ConfigureTraci
 
 	resource := buildResource(ctx, config)
 
-	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	ctx, cancel := buildTimeoutContext(ctx, config)
 	defer cancel()
 
-	exporter := createExporter(ctx, config)
+	exporter := buildTraceExporter(ctx, config)
 
-	batchSpanProcessor := sdktrace.NewBatchSpanProcessor(exporter)
+	spanProcessor := buildSpanProcessor(config, exporter)
 
-	traceProvider := sdktrace.NewTracerProvider(
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithResource(resource),
-		sdktrace.WithSpanProcessor(batchSpanProcessor),
-	)
+	tracerProvider := buildTracerProvider(resource, spanProcessor)
 
-	otel.SetTracerProvider(traceProvider)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	otel.SetTracerProvider(tracerProvider)
 
-	return traceProvider.Shutdown, nil
-}
+	setTextMapPropagator(config)
 
-func CreateSignalContext() (context.Context, context.CancelFunc) {
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
-	return ctx, cancel
+	return tracerProvider.Shutdown, nil
 }
