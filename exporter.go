@@ -8,28 +8,25 @@ import (
 )
 
 type exporters struct {
-	otlp   *otlptrace.Exporter
+	http   *otlptrace.Exporter
+	grpc   *otlptrace.Exporter
 	stdout *stdouttrace.Exporter
 }
 
-func newExporters(otlp *otlptrace.Exporter, stdout *stdouttrace.Exporter) *exporters {
-	return &exporters{
-		otlp:   otlp,
-		stdout: stdout,
-	}
+func newExporters() *exporters {
+	return &exporters{}
 }
 
 func buildTraceExporter(ctx context.Context, config *OpenTelemetryConfiguration) *exporters {
-	if config.exporterProtocol == STDOUT {
-		exporter := buildStdoutTraceExporter()
-		return newExporters(nil, exporter)
-	}
+	exporters := newExporters()
 
-	if config.exporterProtocol == HTTP {
-		exporter := buildHTTPTraceExporter(ctx, config)
-		return newExporters(exporter, nil)
-	}
+	httpExporter := build_HTTP_TraceExporter(ctx, config)
+	grpcExporter := build_GRPC_TraceExporter(ctx, config)
+	stdoutExporter := build_STDOUT_TraceExporter()
 
-	exporter := buildGRPCTraceExporter(ctx, config)
-	return newExporters(exporter, nil)
+	exporters.http = httpExporter
+	exporters.grpc = grpcExporter
+	exporters.stdout = stdoutExporter
+
+	return exporters
 }
