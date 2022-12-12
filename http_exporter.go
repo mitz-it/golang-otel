@@ -8,7 +8,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 )
 
-func buildHTTPTraceExporter(ctx context.Context, config *OpenTelemetryConfiguration) *otlptrace.Exporter {
+func build_HTTP_TraceExporter(ctx context.Context, config *OpenTelemetryConfiguration) *otlptrace.Exporter {
 	collectorURL := config.collectorURL
 	insecure := config.insecure
 	client := buildHTTPClient(collectorURL, insecure)

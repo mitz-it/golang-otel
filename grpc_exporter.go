@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func buildGRPCTraceExporter(ctx context.Context, config *OpenTelemetryConfiguration) *otlptrace.Exporter {
+func build_GRPC_TraceExporter(ctx context.Context, config *OpenTelemetryConfiguration) *otlptrace.Exporter {
 	connection := buildGRPCconnection(ctx, config)
 	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithGRPCConn(connection))
 
