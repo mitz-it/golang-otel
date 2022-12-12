@@ -18,9 +18,9 @@ func ConfigureOpenTelemetryTracing(ctx context.Context, configure ConfigureTraci
 	ctx, cancel := buildTimeoutContext(ctx, config)
 	defer cancel()
 
-	exporter := buildTraceExporter(ctx, config)
+	exporters := buildTraceExporter(ctx, config)
 
-	spanProcessor := buildSpanProcessor(config, exporter)
+	spanProcessor := buildSpanProcessor(config, exporters)
 
 	tracerProvider := buildTracerProvider(resource, spanProcessor)
 
