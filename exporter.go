@@ -20,13 +20,20 @@ func newExporters() *exporters {
 func buildTraceExporter(ctx context.Context, config *OpenTelemetryConfiguration) *exporters {
 	exporters := newExporters()
 
-	httpExporter := build_HTTP_TraceExporter(ctx, config)
-	grpcExporter := build_GRPC_TraceExporter(ctx, config)
-	stdoutExporter := build_STDOUT_TraceExporter()
+	if config.exporterProtocol == HTTP {
+		httpExporter := build_HTTP_TraceExporter(ctx, config)
+		exporters.http = httpExporter
+	}
 
-	exporters.http = httpExporter
-	exporters.grpc = grpcExporter
-	exporters.stdout = stdoutExporter
+	if config.exporterProtocol == GRPC {
+		grpcExporter := build_GRPC_TraceExporter(ctx, config)
+		exporters.grpc = grpcExporter
+	}
+
+	if config.exporterProtocol == STDOUT {
+		stdoutExporter := build_STDOUT_TraceExporter()
+		exporters.stdout = stdoutExporter
+	}
 
 	return exporters
 }
