@@ -1,6 +1,6 @@
 # OpenTelemetry - Mitz IT
 
-Abstraction over OTEL packages for Go lang.
+Abstraction over OpenTelemetry packages. Applying the _convention over configuration_ concept to generate observability to Mitz IT microservices.
 
 ## Installation
 
