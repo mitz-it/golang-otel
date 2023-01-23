@@ -15,6 +15,7 @@ const (
 	GRPC ExporterProtocol = iota
 	HTTP
 	STDOUT
+	NOOP
 )
 
 type SpanProcessorType int
