@@ -45,15 +45,24 @@ func configureOpenTelemetryTracing(config *otel.OpenTelemetryConfiguration) {
   config.WithContextTimeout(100)
   // OpenTelemetry sends traces and metrics to the collector through gRPC or HTTP protocols.
   // The default collector port for gRPC is 4317 and for HTTP is 4318.
-  config.ExportTracesTo("localhost:4317") 
+  config.ExportTracesTo("localhost:4317")
   config.ExportUsing(otel.GRPC)
   // This is the default text map propagator
-  propagator := propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}) 
+  propagator := propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{})
   config.WithCustomTextMapPropagator(&propagator)
   config.WithGrpcExporterCredentials(insecure.NewCredentials())
   config.WithSpanProcessorType(otel.BATCH)
 }
 ```
+
+## Exporters
+
+Available exporters are:
+
+- GRPC **(default)**: Exports using a gRPC client
+- HTTP: Exports using an HTTP client
+- STDOUT: Exports to the standard output
+- NOOP: Don't export
 
 ## Modules Integration
 
