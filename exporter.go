@@ -5,12 +5,14 @@ import (
 
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
 type exporters struct {
 	http   *otlptrace.Exporter
 	grpc   *otlptrace.Exporter
 	stdout *stdouttrace.Exporter
+	noop   *tracetest.NoopExporter
 }
 
 func newExporters() *exporters {
@@ -33,6 +35,11 @@ func buildTraceExporter(ctx context.Context, config *OpenTelemetryConfiguration)
 	if config.exporterProtocol == STDOUT {
 		stdoutExporter := build_STDOUT_TraceExporter()
 		exporters.stdout = stdoutExporter
+	}
+
+	if config.exporterProtocol == NOOP {
+		noopExporter := build_NOOP_TraceExporter()
+		exporters.noop = noopExporter
 	}
 
 	return exporters
